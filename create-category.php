@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         if (isset($_GET['id']) && strlen($_GET['id'] > 0)) {
                             $stmt = $db->prepare("SELECT `name` FROM `categories` WHERE `id` = ?") or die("$stmt->error");
                             $stmt->bind_param('i', $_GET['id']) or die("$stmt->error");
-                            $stmt->execute();
+                            $stmt->execute() or die("$stmt->error");;
                             $res = $stmt->get_result();
                             $name = $res->fetch_row()[0];
                         }

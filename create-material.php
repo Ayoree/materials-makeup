@@ -1,3 +1,39 @@
+<?php
+require_once 'php/config.php';
+
+$type_err = '';
+$category_err = '';
+$name_err = '';
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST['name']) && strlen($_POST['name']) > 0) {
+        if (isset($_POST['type'])) {
+            if (isset($_POST['category'])) {
+                // изменение имеющегося материала если задан get['id']
+                if (isset($_GET['id']) && strlen($_GET['id']) != 0) {
+                    $stmt = $db->prepare("UPDATE `materials` SET `type` = ?, `category` = ?, `name` = ?, `author` = ?, `description` = ? WHERE `id` = ?") or die("$stmt->error");
+                    $stmt->bind_param('iisssi', $_POST['type'], $_POST['category'], $_POST['name'], $_POST['author'], $_POST['description'], $_GET['id']) or die("$stmt->error");
+                    $stmt->execute() or die("$stmt->error");
+                    $stmt->close();
+                }
+                // добавление
+                else {
+                    $stmt = $db->prepare("INSERT INTO `materials` (`id`, `type`, `category`, `name`, `author`, `description`) VALUES (NULL, ?, ?, ?, ?, ?)") or die("$stmt->error");
+                    $stmt->bind_param('iisss', $_POST['type'], $_POST['category'], $_POST['name'], $_POST['author'], $_POST['description']) or die("$stmt->error");
+                    $stmt->execute() or die("$stmt->error");
+                    $stmt->close();
+                }
+                header('location: list-materials.php');
+                }
+            else $category_err = 'Выберите корректную категорию';
+        }
+        else $type_err = 'Выберите корректый тип';
+    }
+    else $name_err = 'Введите название материала';
+}
+
+?>
+
 <!doctype html>
 <html lang="ru">
 <head>
@@ -37,70 +73,88 @@
             </div>
         </nav>
         <div class="container">
-            <h1 class="my-md-5 my-4">Добавить материал</h1>
+            <h1 class="my-md-5 my-4"><?php echo isset($_GET['id']) && strlen($_GET['id']) != 0 ? 'Изменить материал' : 'Добавить материал' ?></h1>
             <div class="row">
                 <div class="col-lg-5 col-md-8">
-                    <form>
+                    <?php // получение информации о материале если меняем его
+                        $type = '';
+                        $category = '';
+                        $name = '';
+                        $author = '';
+                        $description = '';
+                        if (isset($_GET['id']) && strlen($_GET['id'] > 0)) {
+                            $stmt = $db->prepare("SELECT * FROM `materials` WHERE `id` = ?") or die("$stmt->error");
+                            $stmt->bind_param('i', $_GET['id']) or die("$stmt->error");
+                            $stmt->execute() or die("$stmt->error");;
+                            $res = $stmt->get_result();
+                            $row = $res->fetch_assoc();
+                            $type = $row['type'];
+                            $category = $row['category'];
+                            $name = $row['name'];
+                            $author = $row['author'];
+                            $description = $row['description'];
+                        }
+                    ?>
+                    <form action="<?php echo $_SERVER['PHP_SELF'] . (isset($_GET['id']) ? ('?id='.$_GET['id']) : ''); ?>" method="POST">
                         <div class="form-floating mb-3">
-                            <select class="form-select" id="floatingSelectType">
-                                <option selected>Выберите тип</option>
-                                <option value="0">Книга</option>
-                                <option value="1">Статья</option>
-                                <option value="2">Видео</option>
-                                <option value="3">Сайт/Блог</option>
-                                <option value="3">Подборка</option>
-                                <option value="3">Ключевые идеи книги</option>
+                            <select class="form-select" id="floatingSelectType" name="type" required>
+                                <option value="" disabled <?php if (empty($type)) echo 'selected' ?>>Выберите тип</option>
+                                <?php
+                                    $len = count($types);
+                                    for ($i = 1; $i <= $len; $i++)
+                                    {
+                                    ?>
+                                        <option value="<?php echo $i; ?>"
+                                            <?php if (!empty($type) && intval($type) == $i) echo 'selected'; ?>>
+                                            <?php echo $types[$i - 1]; ?>
+                                        </option>
+                                    <?php
+                                    }
+                                ?>
                             </select>
                             <label for="floatingSelectType">Тип</label>
-                            <div class="invalid-feedback">
-                                Пожалуйста, выберите значение
+                            <div class="invalid-feedback" <?php if (strlen($type_err) != 0) echo "style='display:block;'" ?>>
+                                <?php echo $type_err; ?>
                             </div>
                         </div>
                         <div class="form-floating mb-3">
-                            <select class="form-select" id="floatingSelectCategory">
-                                <option selected>Выберите категорию</option>
-                                <option value="0">Деловые/Бизнес-процессы</option>
-                                <option value="1">Деловые/Найм</option>
-                                <option value="2">Деловые/Реклама</option>
-                                <option value="3">Деловые/Управление бизнесом</option>
-                                <option value="4">Деловые/Управление людьми</option>
-                                <option value="5">Деловые/Управление проектами</option>
-                                <option value="6">Детские/Воспитание</option>
-                                <option value="7">Дизайн/Общее</option>
-                                <option value="8">Дизайн/Logo</option>
-                                <option value="9">Дизайн/Web дизайн</option>
-                                <option value="10">Разработка/PHP</option>
-                                <option value="11">Разработка/HTML и CSS</option>
-                                <option value="12">Разработка/Проектирование</option>
+                            <select class="form-select" id="floatingSelectCategory" name="category" required>
+                                <option value="" disabled <?php if (empty($category)) echo 'selected' ?>>Выберите категорию</option>
+                                <?php
+                                    $query = $db->query("SELECT * FROM `categories`");
+                                    while ($row = $query->fetch_assoc())
+                                    {
+                                    ?>
+                                        <option value="<?php echo $row['id']; ?>"
+                                            <?php if (!empty($category) && intval($category) == $row['id']) echo ' selected'; ?>>
+                                            <?php echo $row['name']; ?>
+                                        </option>
+                                    <?php
+                                    }
+                                ?>
                             </select>
                             <label for="floatingSelectCategory">Категория</label>
-                            <div class="invalid-feedback">
-                                Пожалуйста, выберите значение
+                            <div class="invalid-feedback" <?php if (strlen($category_err) != 0) echo "style='display:block;'" ?>>
+                                <?php echo $category_err; ?>
                             </div>
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" placeholder="Напишите название" id="floatingName">
+                            <input type="text" class="form-control" placeholder="Напишите название" id="floatingName" name="name" required value="<?php if(!empty($name)) echo $name; ?>">
                             <label for="floatingName">Название</label>
-                            <div class="invalid-feedback">
-                                Пожалуйста, заполните поле
+                            <div class="invalid-feedback" <?php if (strlen($name_err) != 0) echo "style='display:block;'" ?>>
+                                <?php echo $name_err; ?>
                             </div>
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" placeholder="Напишите авторов" id="floatingAuthor">
+                            <input type="text" class="form-control" placeholder="Напишите авторов" id="floatingAuthor" name="author" value="<?php if(!empty($author)) echo $author; ?>">
                             <label for="floatingAuthor">Авторы</label>
-                            <div class="invalid-feedback">
-                                Пожалуйста, заполните поле
-                            </div>
                         </div>
                         <div class="form-floating mb-3">
                     <textarea class="form-control" placeholder="Напишите краткое описание" id="floatingDescription"
-                              style="height: 100px"></textarea>
+                              style="height: 100px" name="description"><?php if(!empty($description)) echo $description; ?></textarea>
                             <label for="floatingDescription">Описание</label>
-                            <div class="invalid-feedback">
-                                Пожалуйста, заполните поле
-                            </div>
                         </div>
-                        <button class="btn btn-primary" type="submit">Добавить</button>
+                        <button class="btn btn-primary" type="submit"><?php echo isset($_GET['id']) && strlen($_GET['id']) != 0 ? 'Изменить' : 'Добавить' ?></button>
                     </form>
                 </div>
             </div>
