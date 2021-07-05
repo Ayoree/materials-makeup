@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Июл 04 2021 г., 01:37
+-- Время создания: Июл 05 2021 г., 20:08
 -- Версия сервера: 8.0.19
 -- Версия PHP: 8.0.1
 
@@ -60,6 +60,66 @@ CREATE TABLE `materials` (
   `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'описание материала'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Дамп данных таблицы `materials`
+--
+
+INSERT INTO `materials` (`id`, `type`, `category`, `name`, `author`, `description`) VALUES
+(1, 1, 2, 'Гарри Поттер и философский камень', '', 'История о том, как мальчик по имени Гарри....'),
+(2, 2, 1, 'Хз какое название', '', ''),
+(3, 1, 2, 'asd', '', 'sss'),
+(4, 3, 7, 'PewDiePie first video', 'PewDiePie', 'Крутое описание');
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `material_link`
+--
+
+CREATE TABLE `material_link` (
+  `id` int NOT NULL,
+  `material_id` int NOT NULL COMMENT 'id материала',
+  `link_title` varchar(64) NOT NULL COMMENT 'подпись ссылки',
+  `link_url` varchar(128) NOT NULL COMMENT 'url'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `material_link`
+--
+
+INSERT INTO `material_link` (`id`, `material_id`, `link_title`, `link_url`) VALUES
+(2, 1, 'title', 'https://www.youtube.com/'),
+(3, 1, 'test link', 'https://mail.ru/'),
+(4, 1, '', 'https://mail.ru/'),
+(5, 2, 'Хз какая ссылка', 'https://aliexpress.com/'),
+(6, 3, '', 'https://aliexpress.com/'),
+(7, 4, 'Ютуб', 'https://www.youtube.com/');
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `material_tag`
+--
+
+CREATE TABLE `material_tag` (
+  `id` int NOT NULL,
+  `material_id` int NOT NULL COMMENT 'id материала, к которому привзяан тег',
+  `tag_id` int NOT NULL COMMENT 'id тега, который привязан к материалу'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `material_tag`
+--
+
+INSERT INTO `material_tag` (`id`, `material_id`, `tag_id`) VALUES
+(4, 1, 1),
+(6, 1, 2),
+(7, 2, 1),
+(9, 3, 2),
+(10, 4, 2),
+(11, 4, 5),
+(12, 4, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -78,7 +138,9 @@ CREATE TABLE `tags` (
 INSERT INTO `tags` (`id`, `name`) VALUES
 (1, 'Продуктивность'),
 (2, 'Саморазвитие'),
-(3, 'главный герой не ОЯШ');
+(3, 'Главный герой не ОЯШ'),
+(4, '177013'),
+(5, 'Крутой тег');
 
 --
 -- Индексы сохранённых таблиц
@@ -94,6 +156,18 @@ ALTER TABLE `categories`
 -- Индексы таблицы `materials`
 --
 ALTER TABLE `materials`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Индексы таблицы `material_link`
+--
+ALTER TABLE `material_link`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Индексы таблицы `material_tag`
+--
+ALTER TABLE `material_tag`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -116,13 +190,25 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT для таблицы `materials`
 --
 ALTER TABLE `materials`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT для таблицы `material_link`
+--
+ALTER TABLE `material_link`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT для таблицы `material_tag`
+--
+ALTER TABLE `material_tag`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT для таблицы `tags`
 --
 ALTER TABLE `tags`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
