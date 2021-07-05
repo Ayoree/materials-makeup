@@ -7,6 +7,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         $stmt = $db->prepare("DELETE FROM `tags` WHERE `id` = ?") or die("$stmt->error");
         $stmt->bind_param('i', $_GET['id']) or die("$stmt->error");
         $stmt->execute() or die("$stmt->error");
+        $stmt = $db->prepare("DELETE FROM `material_tag` WHERE `tag_id` = ?") or die("$stmt->error");
+        $stmt->bind_param('i', $_GET['id']) or die("$stmt->error");
+        $stmt->execute() or die("$stmt->error");
         header('location: list-tag.php');
     }
 }

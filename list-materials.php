@@ -72,24 +72,34 @@ require_once 'php/config.php';
 
                     if (isset($_GET['src']) && !empty($_GET['src'])) {
                         $stmt = $db->prepare("SELECT `materials`.`id`, `materials`.`name` AS `material_name`, `materials`.`author`, `materials`.`type`, `categories`.`name` AS 'category_name'
-                        FROM `materials`
-                        INNER JOIN `categories`
-                        ON `materials`.`category` = `categories`.`id`
-                        WHERE (`materials`.`name` LIKE ?)
-                            OR (`materials`.`description` LIKE ?)
-                            OR (`materials`.`author` LIKE ?)
-                            OR (`categories`.`name` LIKE ?)
-                        ") or die("Error...");
+                                              FROM `materials`
+                                              INNER JOIN `categories`
+                                              ON `materials`.`category` = `categories`.`id`
+                                              WHERE (`materials`.`name` LIKE ?)
+                                                  OR (`materials`.`description` LIKE ?)
+                                                  OR (`materials`.`author` LIKE ?)
+                                                  OR (`categories`.`name` LIKE ?)
+                                              ") or die("Ошибка при поиске");
                         $param = "%{$_GET['src']}%";
                         $stmt->bind_param('ssss', $param, $param, $param, $param);
                         $stmt->execute();
                         $res = $stmt->get_result();
                     }
+                    else if (isset($_GET['tag_id']) && !empty($_GET['tag_id'])) {
+                        $stmt = $db->prepare("SELECT `materials`.`id`, `materials`.`name` AS `material_name`, `materials`.`author`, `materials`.`type`, `categories`.`name` AS 'category_name'
+                                              FROM `materials`
+                                              INNER JOIN `categories`
+                                              ON `materials`.`category` = `categories`.`id`
+                                              WHERE `materials`.`id` IN (SELECT `material_id` FROM `material_tag` WHERE `tag_id` = ?)") or die("Ошибка при поиске по тегу");
+                        $stmt->bind_param('i', $_GET['tag_id']);
+                        $stmt->execute();
+                        $res = $stmt->get_result();
+                    }
                     else {
                         $res = $db->query("SELECT `materials`.`id`, `materials`.`name` AS `material_name`, `materials`.`author`, `materials`.`type`, `categories`.`name` AS 'category_name'
-                        FROM `materials`
-                        INNER JOIN `categories`
-                        ON `materials`.`category` = `categories`.`id`") or die("Ошибка в том самом длинном запросе");
+                                           FROM `materials`
+                                           INNER JOIN `categories`
+                                           ON `materials`.`category` = `categories`.`id`") or die("Ошибка при получении списка материалов");
                     }
                     while ($row = $res->fetch_assoc())
                     {
@@ -109,7 +119,7 @@ require_once 'php/config.php';
                             </a>
                             <a href="delete-material.php?id=<?php echo $row['id']; ?>" class="text-decoration-none">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                     class="bi bi-trash" viewBox="0 0 16 16">
+                                    onclick="return confirm('Удалить материал?')" class="bi bi-trash" viewBox="0 0 16 16">
                                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
                                     <path fill-rule="evenodd"
                                           d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>

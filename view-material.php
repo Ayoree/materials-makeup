@@ -29,15 +29,15 @@ if (!isset($_GET['id']) || strlen($_GET['id']) == 0) header('location: list-mate
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav">
+                <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">Материалы</a>
+                            <a class="nav-link" aria-current="page" href="list-materials.php">Материалы</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Теги</a>
+                            <a class="nav-link" href="list-tag.php">Теги</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Категории</a>
+                            <a class="nav-link" href="list-category.php">Категории</a>
                         </li>
                     </ul>
                 </div>
@@ -107,11 +107,11 @@ if (!isset($_GET['id']) || strlen($_GET['id']) == 0) header('location: list-mate
                             $material_id = $_GET['id'];
                             ?>
                             <li class="list-group-item list-group-item-action d-flex justify-content-between">
-                                <a href="#" class="me-3">
+                                <a href="list-materials.php?tag_id=<?php echo $tag_id; ?>" class="me-3">
                                     <?php echo $row['name']; ?>
                                 </a>
                                 <a href="<?php echo "remove-tag.php?tag_id=$tag_id&material_id=$material_id"; ?>"
-                                    onclick="return confirm('Удалить тег?')" class="text-decoration-none">
+                                    onclick="return confirm('Убрать тег?')" class="text-decoration-none">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                         class="bi bi-trash" viewBox="0 0 16 16">
                                         <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
