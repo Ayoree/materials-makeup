@@ -53,13 +53,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link" aria-current="page" href="#">Материалы</a>
+                            <a class="nav-link" aria-current="page" href="list-materials.php">Материалы</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="#">Теги</a>
+                            <a class="nav-link" href="list-tag.php">Теги</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Категории</a>
+                            <a class="nav-link" href="list-category.php">Категории</a>
                         </li>
                     </ul>
                 </div>
